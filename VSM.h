@@ -143,7 +143,7 @@ void show_component(stock*a, index b) {
 }
 void vitrual_market(goal a,index hsi) {
 	stock *component = new stock[33];
-	string b = "vi(1).txt";
+	string b = "vi.txt";
 	set_stock(component,hsi,b);
 	show_component(component, hsi);
 	//generate_stock(component,50);

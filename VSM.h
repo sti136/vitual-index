@@ -118,12 +118,24 @@ void create_space(stock& a) {
 			a.name[i] = ' ';
 	}
 }
+int compare(const void *a, const void *b) {
+	stock *p1 = (stock*)a;
+	stock *p2 = (stock*)b;
+	for (int i = 1; i < 5; i++) {
+		if (p1->number[i] < p2->number[i])
+			return -1;
+		else if (p1->number[i] > p2->number[i])
+			return 1;
+  }
+	return 0;
+}
 void set_stock(stock*&a,index& index,string b) {
 	index.longest_string = 0;
 	ifstream infile(b);
 	infile >> index.p_index;
 	cout.precision(7);
-	cout << index.p_index << endl;
+	cout << endl;
+	cout << "This is the real data of the stock market of Hong Kong at 26/04/1999" << endl << endl;
 	for (int i = 0; i < 33; i++) {
 		infile >> a[i].name >> a[i].number >> a[i].percent >> a[i].p_price;
 		create_space(a[i]);
@@ -131,6 +143,7 @@ void set_stock(stock*&a,index& index,string b) {
 			index.longest_string = a[i].name.length();
 
 	}
+	qsort(a, 33, sizeof(stock), compare);
 }
 void show_component(stock*a, index b) {
 	cout << "Welcome to stock market ,This is the market today:" << endl;
@@ -143,7 +156,7 @@ void show_component(stock*a, index b) {
 }
 void vitrual_market(goal a,index hsi) {
 	stock *component = new stock[33];
-	string b = "vi.txt";
+	string b = "vi(1).txt";
 	set_stock(component,hsi,b);
 	show_component(component, hsi);
 	//generate_stock(component,50);

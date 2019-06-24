@@ -5,6 +5,7 @@
 #include<cstdlib>
 #include<string>
 #include<fstream>
+#include<iomanip>
 using namespace std;
 struct goal {
 	int day;
@@ -32,7 +33,7 @@ struct index {
 	float p_change;
 	double p_index;
 	double* history;
-
+	int longest_string;
 };
 void welcome(goal &a) {//tested
 	cout << "How many day you want to play?" << endl;
@@ -117,26 +118,34 @@ void create_space(stock& a) {
 			a.name[i] = ' ';
 	}
 }
-void set_stock(stock*&a,index& i,string b) {
+void set_stock(stock*&a,index& index,string b) {
+	index.longest_string = 0;
 	ifstream infile(b);
-	infile >> i.p_index;
+	infile >> index.p_index;
 	cout.precision(7);
-	cout << i.p_index << endl;
+	cout << index.p_index << endl;
 	for (int i = 0; i < 33; i++) {
 		infile >> a[i].name >> a[i].number >> a[i].percent >> a[i].p_price;
 		create_space(a[i]);
-		cout << a[i].name << " " << a[i].number << " " << a[i].percent << " " << a[i].p_price<<endl;
+		if (a[i].name.length() > index.longest_string)
+			index.longest_string = a[i].name.length();
+
 	}
 }
 void show_component(stock*a, index b) {
-	
-	//for(int i = 0;i<33;i++)
+	cout << "Welcome to stock market ,This is the market today:" << endl;
+	cout << "The hang seng index is now " <<"                          "<< b.p_index << endl;
+	cout << "stock code" << "            " << "stock name" << setw(b.longest_string + 13 - 10) << "stock price" << endl;
+	for (int i = 0; i < 33; i++) {
+		cout << a[i].number << "                "<<a[i].name  << setw(b.longest_string+13-a[i].name.length()) << a[i].p_price << endl;
+	}
 
 }
 void vitrual_market(goal a,index hsi) {
 	stock *component = new stock[33];
 	string b = "vi(1).txt";
 	set_stock(component,hsi,b);
+	show_component(component, hsi);
 	//generate_stock(component,50);
 
  

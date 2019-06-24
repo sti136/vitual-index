@@ -2,7 +2,7 @@
 #include"VSM.h"
 using namespace std;
 int main() {
-	goal store = { 0, 0 };
+	goal store = { 50, 0 };
 	index hsi;
 	//welcome(store);
 	

@@ -10,6 +10,7 @@ using namespace std;
 struct goal {
 	int day;
 	int goal;
+	int count;
 };
 struct stock {
 	string number;
@@ -18,17 +19,18 @@ struct stock {
 	float c_price;
 	float p_price;
 	double* history;
+	float change;
 	stock() {
 		number = " ";
 		name = " ";
 		p_price = 0;
 		c_price = 0;
 		percent = 0;
-		
+		change = 0;
 	}
 };
 struct index {
-	int n = 50;
+	int n = 33;
 	float index;
 	float p_change;
 	double p_index;
@@ -58,23 +60,23 @@ float generate_change() {
 	switch (random)
 	{
 	case(0):
-		change = -0.127;
+		change = -0.0167;
 		break;
 
 	case(1):
-		change = -0.0151;
+		change = -0.00201;
 		break;
 
 	case(2):
-		change = -0.0087;
+		change = -0.00187;
 		break;
 
 	case(3):
-		change = -0.0045;
+		change = -0.00045;
 		break;
 
 	case(4):
-		change = -0.0017;
+		change = -0.00017;
 		break;
 
 	case(5):
@@ -82,32 +84,35 @@ float generate_change() {
 		break;
 
 	case(6):
-		change = 0.0027;
+		change = 0.0017;
 		break;
 	case(7):
-		change = 0.0053;
+		change = 0.0023;
 		break;
 	case(8):
-		change = 0.0094;
+		change = 0.0044;
 		break;
 	case(9):
-		change = 0.0158;
+		change = 0.0058;
 		break;
 	case(10):
-		change = 0.1435;
+		change = 0.0065;
 		break;
 	
 	}
 	
 	return change;
 }
-void generate_stock(stock *&hsi, int n) {
+void generate_stock(stock *&stock, int n,goal a) {
 	srand(time(NULL));
-	for (int i = 0; i < n - 1; i++) {
-		hsi[i].c_price = hsi[i].p_price*(1+generate_change());
+	for (int i = 0; i < n; i++) {
+		stock[i].change = generate_change();
+		stock[i].c_price = stock[i].p_price*(1+stock[i].change);
+		stock[i].history[a.count] = stock[i].p_price;
+		stock[i].p_price = stock[i].c_price;
+
 	}
-	for (int i = 0; i < n - 1; i++)
-		cout << hsi[i].c_price << endl;
+	
 
 
 }
@@ -131,9 +136,10 @@ int compare(const void *a, const void *b) {
 }
 void set_stock(stock*&a,index& index,string b) {
 	index.longest_string = 0;
+
 	ifstream infile(b);
 	infile >> index.p_index;
-	cout.precision(7);
+	//cout.precision(7);
 	cout << endl;
 	cout << "This is the real data of the stock market of Hong Kong at 26/04/1999" << endl << endl;
 	for (int i = 0; i < 33; i++) {
@@ -145,24 +151,53 @@ void set_stock(stock*&a,index& index,string b) {
 	}
 	qsort(a, 33, sizeof(stock), compare);
 }
-void show_component(stock*a, index b) {
-	cout << "Welcome to stock market ,This is the market today:" << endl;
-	cout << "The hang seng index is now " <<"                          "<< b.p_index << endl;
-	cout << "stock code" << "            " << "stock name" << setw(b.longest_string + 13 - 10) << "stock price" << endl;
+void show_component(stock*a, index b,goal c) {
+	cout << "Welcome to stock market ,This is the market today:" <<" (Day "<<c.count<<")"<< endl;
+	cout.precision(7);
+	cout << "The hang seng index is now " <<"                          "<<(long long) b.p_index << endl;
+	cout.precision(4);
+	cout << "stock code" << "            " << "stock name" << setw(b.longest_string + 13 - 10) << "stock price";
+	if (c.count == 0)
+		cout << endl;
+	else
+	cout<<setw(13) << "change(%)" << endl;
+	
 	for (int i = 0; i < 33; i++) {
-		cout << a[i].number << "                "<<a[i].name  << setw(b.longest_string+13-a[i].name.length()) << a[i].p_price << endl;
+		cout << a[i].number << "                " << a[i].name << setw(b.longest_string + 13 - a[i].name.length()) << a[i].p_price;
+		if (c.count == 0)
+			cout << endl;
+		else
+			cout<< setw(13) <<100*a[i].change<< endl;
 	}
-
+	
 }
-void vitrual_market(goal a,index hsi) {
+void create_history(goal& a, stock *&s,int n) {
+	for (int i = 0; i < n; i++)
+		s[i].history = new double[a.day];
+}
+void generate_index(stock*&data, index& hsi, goal a) {
+	double dummy_up, dummy_down;
+	dummy_down = dummy_up = 0;
+	for (int i = 0; i < hsi.n; i++) {
+		dummy_down += (data[i].history[a.count] * data[i].percent);
+		dummy_up += (data[i].c_price * data[i].percent);
+	}
+	hsi.history = new double[a.day];
+	hsi.history[a.count] = hsi.p_index;
+	hsi.index = dummy_up / dummy_down * hsi.p_index;
+	hsi.p_index = hsi.index;
+	
+
+}void vitrual_market(goal a,index hsi) {
 	stock *component = new stock[33];
 	string b = "vi(1).txt";
 	set_stock(component,hsi,b);
-	show_component(component, hsi);
-	//generate_stock(component,50);
-
- 
-}
-void generate_index(stock*data,index hsi) {
-
+	create_history(a, component, 33);
+	a.count = 0;
+	for (int i = 0 ; i < a.day; i++) {
+		show_component(component, hsi,a);
+		generate_stock(component,33,a);
+		generate_index(component, hsi, a);
+		a.count++;
+	}
 }

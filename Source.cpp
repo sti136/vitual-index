@@ -1,3 +1,4 @@
+include <VSM.h>
 using namespace std;
 int main() {
 	goal store;
